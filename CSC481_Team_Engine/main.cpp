@@ -2,7 +2,15 @@
 #include <iostream>
 #include "PhysicsEntity.h"
 
-// Function to initialize SDL, window, and renderer
+// SECTION 1: SDL Initialization
+/**
+ * Function to initialize SDL, create a window, and create a renderer.
+ * @param window Reference to the SDL_Window pointer.
+ * @param renderer Reference to the SDL_Renderer pointer.
+ * @param width The width of the window.
+ * @param height The height of the window.
+ * @return true if initialization was successful, false otherwise.
+ */
 bool init(SDL_Window*& window, SDL_Renderer*& renderer, int width, int height) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
@@ -24,13 +32,19 @@ bool init(SDL_Window*& window, SDL_Renderer*& renderer, int width, int height) {
     return true;
 }
 
-// Function to close and clean up SDL
+// SECTION 1: SDL Cleanup
+/**
+ * Function to clean up SDL resources (renderer and window).
+ * @param window SDL_Window pointer to the window.
+ * @param renderer SDL_Renderer pointer to the renderer.
+ */
 void close(SDL_Window* window, SDL_Renderer* renderer) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
 
+// SECTION 2: Main Function
 int main(int argc, char* args[]) {
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
@@ -38,6 +52,7 @@ int main(int argc, char* args[]) {
     const int SCREEN_WIDTH = 1920;
     const int SCREEN_HEIGHT = 1080;
 
+    // Initialize SDL and create window and renderer
     if (!init(window, renderer, SCREEN_WIDTH, SCREEN_HEIGHT)) {
         std::cerr << "Failed to initialize!" << std::endl;
         return -1;
@@ -46,64 +61,73 @@ int main(int argc, char* args[]) {
     bool quit = false;
     SDL_Event e;
 
-    // Section 2: Create entities
-    SDL_Rect solidRect = { 300, 300, 100, 100 };  // Static solid shape
-    SDL_Rect controllableRect = { 500, 500, 50, 50 };  // Controllable shape
+    // SECTION 2: Define Game Entities
+    // Static platform that does not move
+    SDL_Rect platformRect = { 0, 600, 600, 50 };  // Red platform
 
-    // Gravity applied to an entity for continuous falling
-    PhysicsEntity fallingRect((SCREEN_WIDTH - 50) / 2, -50, 50, 50, 0.002f);
+    // Moving platform that moves horizontally
+    SDL_Rect movingPlatformRect = { 600, 800, 700, 50 };  // Cyan platform
+    int movingPlatformVelocity = 1;  // Slow movement speed for the platform
 
+    // Controllable shape with physics (gravity)
+    PhysicsEntity controllableRect(500, SCREEN_HEIGHT / 2 - 50, 50, 50, 0.01f);  // Green shape
+
+    // SECTION 4: Game Loop
     while (!quit) {
-        // Handle events
+        // SECTION 4: Event Handling
         while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_QUIT) {
                 quit = true;
             }
         }
 
-        // Section 4: Handle keyboard inputs for controllableRect with boundary checks
+        // SECTION 4: Handle Keyboard Inputs for Controllable Shape
         const Uint8* state = SDL_GetKeyboardState(NULL);
-        if (state[SDL_SCANCODE_UP] && controllableRect.y > 0) {
-            controllableRect.y -= 2;
+        if (state[SDL_SCANCODE_LEFT] && controllableRect.rect.x > 0) {
+            controllableRect.rect.x -= 2;  // Move left
         }
-        if (state[SDL_SCANCODE_DOWN] && controllableRect.y < SCREEN_HEIGHT - controllableRect.h) {
-            controllableRect.y += 2;
-        }
-        if (state[SDL_SCANCODE_LEFT] && controllableRect.x > 0) {
-            controllableRect.x -= 2;
-        }
-        if (state[SDL_SCANCODE_RIGHT] && controllableRect.x < SCREEN_WIDTH - controllableRect.w) {
-            controllableRect.x += 2;
+        if (state[SDL_SCANCODE_RIGHT] && controllableRect.rect.x < SCREEN_WIDTH - controllableRect.rect.w) {
+            controllableRect.rect.x += 2;  // Move right
         }
 
-        // Section 3: Apply gravity to fallingRect for continuous falling
-        fallingRect.applyGravity(SCREEN_HEIGHT);
+        // SECTION 3: Apply Gravity to Controllable Shape
+        controllableRect.applyGravity(SCREEN_HEIGHT);
 
-        // Section 5: Check collision between controllableRect and solidRect
-        if (SDL_HasIntersection(&controllableRect, &solidRect)) {
-            std::cout << "Collision detected!" << std::endl;
+        // SECTION 5: Collision Detection
+        // Check and handle collision with the static platform (red)
+        controllableRect.handleCollision(platformRect);
+
+        // Check and handle collision with the moving platform (cyan)
+        controllableRect.handleCollision(movingPlatformRect);
+
+        // Update moving platform position and ensure it stays on screen
+        movingPlatformRect.x += movingPlatformVelocity;
+        if (movingPlatformRect.x <= 0 || movingPlatformRect.x >= SCREEN_WIDTH - movingPlatformRect.w) {
+            movingPlatformVelocity = -movingPlatformVelocity;
         }
 
+        // SECTION 2: Rendering
         // Clear screen with blue background
         SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
         SDL_RenderClear(renderer);
 
-        // Render the solid static shape
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);  // Red color
-        SDL_RenderFillRect(renderer, &solidRect);
+        // Render the static platform (red)
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        SDL_RenderFillRect(renderer, &platformRect);
 
-        // Render the controllable shape
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);  // Green color
-        SDL_RenderFillRect(renderer, &controllableRect);
+        // Render the moving platform (cyan)
+        SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &movingPlatformRect);
 
-        // Render the falling shape
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);  // Black color
-        SDL_RenderFillRect(renderer, &fallingRect.rect);
+        // Render the controllable shape (green)
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        SDL_RenderFillRect(renderer, &controllableRect.rect);
 
-        // Update screen
+        // Present the updated screen
         SDL_RenderPresent(renderer);
     }
 
+    // Clean up resources
     close(window, renderer);
     return 0;
 }
