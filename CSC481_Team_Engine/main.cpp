@@ -1,10 +1,11 @@
 #include <SDL.h>
 #include <iostream>
-#include "PhysicsEntity.h"
+#include "game.h"
 
 // SECTION 1: SDL Initialization
 /**
  * Function to initialize SDL, create a window, and create a renderer.
+ *
  * @param window Reference to the SDL_Window pointer.
  * @param renderer Reference to the SDL_Renderer pointer.
  * @param width The width of the window.
@@ -35,6 +36,7 @@ bool init(SDL_Window*& window, SDL_Renderer*& renderer, int width, int height) {
 // SECTION 1: SDL Cleanup
 /**
  * Function to clean up SDL resources (renderer and window).
+ *
  * @param window SDL_Window pointer to the window.
  * @param renderer SDL_Renderer pointer to the renderer.
  */
@@ -58,19 +60,10 @@ int main(int argc, char* args[]) {
         return -1;
     }
 
+    Game game;  // Create an instance of the Game class
+
     bool quit = false;
     SDL_Event e;
-
-    // SECTION 2: Define Game Entities
-    // Static platform that does not move
-    SDL_Rect platformRect = { 0, 600, 600, 50 };  // Red platform
-
-    // Moving platform that moves horizontally
-    SDL_Rect movingPlatformRect = { 600, 800, 700, 50 };  // Cyan platform
-    int movingPlatformVelocity = 1;  // Slow movement speed for the platform
-
-    // Controllable shape with physics (gravity)
-    PhysicsEntity controllableRect(500, SCREEN_HEIGHT / 2 - 50, 50, 50, 0.01f);  // Green shape
 
     // SECTION 4: Game Loop
     while (!quit) {
@@ -81,53 +74,22 @@ int main(int argc, char* args[]) {
             }
         }
 
-        // SECTION 4: Handle Keyboard Inputs for Controllable Shape
+        // Handle input
         const Uint8* state = SDL_GetKeyboardState(NULL);
-        if (state[SDL_SCANCODE_LEFT] && controllableRect.rect.x > 0) {
-            controllableRect.rect.x -= 2;  // Move left
-        }
-        if (state[SDL_SCANCODE_RIGHT] && controllableRect.rect.x < SCREEN_WIDTH - controllableRect.rect.w) {
-            controllableRect.rect.x += 2;  // Move right
-        }
+        game.handleInput(state);
 
-        // SECTION 3: Apply Gravity to Controllable Shape
-        controllableRect.applyGravity(SCREEN_HEIGHT);
-
-        // SECTION 5: Collision Detection
-        // Check and handle collision with the static platform (red)
-        controllableRect.handleCollision(platformRect);
-
-        // Check and handle collision with the moving platform (cyan)
-        controllableRect.handleCollision(movingPlatformRect);
-
-        // Update moving platform position and ensure it stays on screen
-        movingPlatformRect.x += movingPlatformVelocity;
-        if (movingPlatformRect.x <= 0 || movingPlatformRect.x >= SCREEN_WIDTH - movingPlatformRect.w) {
-            movingPlatformVelocity = -movingPlatformVelocity;
-        }
+        // Update game state
+        game.update();
 
         // SECTION 2: Rendering
-        // Clear screen with blue background
-        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);  // Clear screen with blue background
         SDL_RenderClear(renderer);
 
-        // Render the static platform (red)
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        SDL_RenderFillRect(renderer, &platformRect);
+        game.render(renderer);  // Render game objects
 
-        // Render the moving platform (cyan)
-        SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
-        SDL_RenderFillRect(renderer, &movingPlatformRect);
-
-        // Render the controllable shape (green)
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-        SDL_RenderFillRect(renderer, &controllableRect.rect);
-
-        // Present the updated screen
-        SDL_RenderPresent(renderer);
+        SDL_RenderPresent(renderer);  // Present the updated screen
     }
 
-    // Clean up resources
     close(window, renderer);
     return 0;
 }
