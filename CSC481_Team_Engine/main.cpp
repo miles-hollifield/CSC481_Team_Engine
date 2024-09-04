@@ -1,21 +1,12 @@
-#include <SDL.h>
-#include <iostream>
-#include "game.h"
-#include "init.cpp"
+#include "main.h"
 
 // SECTION 2: Main Function
 int main(int argc, char* args[]) {
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
 
-    const int SCREEN_WIDTH = 1920;
-    const int SCREEN_HEIGHT = 1080;
-
-    // Initialize SDL and create window and renderer
-    if (!init(window, renderer, SCREEN_WIDTH, SCREEN_HEIGHT)) {
-        std::cerr << "Failed to initialize!" << std::endl;
-        return -1;
-    }
+    // initialize sdl
+    init(window, renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     Game game;  // Create an instance of the Game class
 

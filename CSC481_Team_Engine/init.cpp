@@ -1,5 +1,4 @@
-#include <SDL.h>
-#include <iostream>
+#include "init.h"
 
 // SECTION 1: SDL Initialization
 /**
@@ -11,25 +10,26 @@
  * @param height The height of the window.
  * @return true if initialization was successful, false otherwise.
  */
-bool init(SDL_Window*& window, SDL_Renderer*& renderer, int width, int height) {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
-        return false;
-    }
+void init(SDL_Window*& window, SDL_Renderer*& renderer, int width, int height) {
+	// Initialize SDL
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+		return;
+	}
 
-    window = SDL_CreateWindow("SDL 2 Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
-    if (window == nullptr) {
-        std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-        return false;
-    }
+	// Create window
+	window = SDL_CreateWindow("CSC481 Team Engine", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
+	if (window == nullptr) {
+		std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+		return;
+	}
 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (renderer == nullptr) {
-        std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-        return false;
-    }
-
-    return true;
+	// Create renderer
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	if (renderer == nullptr) {
+		std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+		return;
+	}
 }
 
 // SECTION 1: SDL Cleanup
