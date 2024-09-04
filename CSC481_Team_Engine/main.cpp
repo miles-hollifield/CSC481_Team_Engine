@@ -22,18 +22,11 @@ int main(int argc, char* args[]) {
             }
         }
 
-        // Handle input
-        const Uint8* state = SDL_GetKeyboardState(NULL);
-        game.handleInput(state);
-
-        // Update game state
-        game.update();
-
         // SECTION 2: Rendering
         SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);  // Clear screen with blue background
         SDL_RenderClear(renderer);
 
-        game.render(renderer);  // Render game objects
+        game.run(renderer);
 
         SDL_RenderPresent(renderer);  // Present the updated screen
     }

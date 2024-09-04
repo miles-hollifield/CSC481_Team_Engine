@@ -24,7 +24,7 @@ public:
      *
      * @param state A pointer to the current state of the keyboard.
      */
-    void handleInput(const Uint8* state);
+    void handleInput();
 
     /**
      * Updates the game state, applying gravity to the controllable shape,
@@ -38,6 +38,11 @@ public:
      * @param renderer The SDL_Renderer used to draw the objects on the screen.
      */
     void render(SDL_Renderer* renderer);
+
+    /**
+    * 
+    */
+    void run(SDL_Renderer* renderer);
 
 private:
     SDL_Rect platformRect;  // The static platform

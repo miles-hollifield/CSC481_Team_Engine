@@ -10,7 +10,8 @@ Game::Game()
 }
 
 // Handle player input to move the controllable shape
-void Game::handleInput(const Uint8* state) {
+void Game::handleInput() {
+    const Uint8* state = SDL_GetKeyboardState(NULL);
     if (state[SDL_SCANCODE_LEFT] && controllableRect.rect.x > 0) {
         controllableRect.rect.x -= 2;  // Move left
     }
@@ -47,4 +48,14 @@ void Game::render(SDL_Renderer* renderer) {
     // Render the controllable shape (green)
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
     SDL_RenderFillRect(renderer, &controllableRect.rect);
+}
+
+void Game::run(SDL_Renderer* renderer) {
+    // Handle input
+    handleInput();
+
+    // Update game state
+    update();
+
+    render(renderer);  // Render game objects
 }
