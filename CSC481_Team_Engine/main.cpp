@@ -1,5 +1,6 @@
 #include "main.h"
 
+
 // SECTION 2: Main Function
 int main(int argc, char* args[]) {
     SDL_Window* window = nullptr;
