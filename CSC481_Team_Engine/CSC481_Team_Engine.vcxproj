@@ -132,13 +132,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="defs.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="init.cpp" />
+    <ClCompile Include="input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PhysicsEntity.cpp" />
     <ClCompile Include="PhysicsEntity.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="defs.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="init.h" />
+    <ClInclude Include="input.h" />
+    <ClInclude Include="main.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

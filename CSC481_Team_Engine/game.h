@@ -3,6 +3,7 @@
 
 #include <SDL.h>
 #include "PhysicsEntity.h"
+#include "init.h"
 
 // SECTION 2: Game Class Definition
 /**
